@@ -57,7 +57,7 @@ export default function Scanner({ onScan }) {
   }, [onScan]);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '55vh', flexShrink: 0, backgroundColor: '#000', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100dvh', backgroundColor: '#000', overflow: 'hidden' }}>
       <div id="reader" style={{ width: '100%', height: '100%', border: 'none' }}></div>
       <style>{`
         #reader { width: 100% !important; border: none !important; }
