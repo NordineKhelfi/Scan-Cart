@@ -1,8 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
-export default function Scanner({ onScan }) {
-  const html5QrCodeRef = useRef(null);
+interface ScannerProps {
+  onScan: (decodedText: string) => void;
+}
+
+export default function Scanner({ onScan }: ScannerProps) {
+  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
     let isScanned = false;
@@ -10,22 +14,24 @@ export default function Scanner({ onScan }) {
 
     const startScanner = async () => {
       try {
-        html5QrCodeRef.current = new Html5Qrcode("reader");
+        html5QrCodeRef.current = new Html5Qrcode("reader", {
+          verbose: false,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+          ]
+        });
         await html5QrCodeRef.current.start(
           { facingMode: "environment" },
           {
             fps: 10,
             qrbox: { width: 250, height: 150 },
-            formatsToSupport: [
-              Html5QrcodeSupportedFormats.EAN_13,
-              Html5QrcodeSupportedFormats.EAN_8,
-              Html5QrcodeSupportedFormats.UPC_A,
-              Html5QrcodeSupportedFormats.UPC_E,
-              Html5QrcodeSupportedFormats.CODE_128,
-            ],
             aspectRatio: 1.0,
           },
-          (decodedText) => {
+          (decodedText: string) => {
             if (!isScanned) {
               isScanned = true;
               onScan(decodedText);
@@ -50,13 +56,15 @@ export default function Scanner({ onScan }) {
 
     return () => {
       shouldStop = true;
-      if (html5QrCodeRef.current?.isScanning) {
+      if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
         html5QrCodeRef.current
           .stop()
           .then(() => {
-            html5QrCodeRef.current.clear();
+            html5QrCodeRef.current?.clear();
           })
-          .catch((e) => console.error(e));
+          .catch((e: any) => console.error(e));
+      } else if (html5QrCodeRef.current) {
+        html5QrCodeRef.current.clear();
       }
     };
   }, [onScan]);

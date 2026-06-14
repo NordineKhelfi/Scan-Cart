@@ -1,26 +1,33 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { MdDeleteOutline } from "react-icons/md";
+import { CartItem } from "../db";
 
-export default function Cart({ items, onRemoveItem, onFinishTrip }) {
+interface CartProps {
+  items: CartItem[];
+  onRemoveItem: (id: string) => void;
+  onFinishTrip: () => void;
+}
+
+export default function Cart({ items, onRemoveItem, onFinishTrip }: CartProps) {
   const [height, setHeight] = useState(35); // Initial height in vh
   const [isDragging, setIsDragging] = useState(false);
   const startY = useRef(0);
   const startHeight = useRef(35);
-  const listRef = useRef(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const total = items.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
   );
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
 
     startY.current = e.touches[0].clientY;
     startHeight.current = height;
   };
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
 
     const deltaY = e.touches[0].clientY - startY.current;

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { db } from "./db";
+import { useState, useEffect } from "react";
+import { db, Store, CartItem } from "./db";
 import StoreSelector from "./components/StoreSelector";
 import Scanner from "./components/Scanner";
 import Cart from "./components/Cart";
-import ItemModal from "./components/ItemModal";
+import ItemModal, { ItemData, SavedItemData } from "./components/ItemModal";
 import { v4 as uuidv4 } from "uuid";
 
 export default function App() {
-  const [currentStore, setCurrentStore] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
+  const [currentStore, setCurrentStore] = useState<Store | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalData, setModalData] = useState(null);
+  const [modalData, setModalData] = useState<ItemData | null>(null);
 
   // Load cart on mount (if resuming an interrupted trip)
   useEffect(() => {
@@ -32,12 +32,12 @@ export default function App() {
     }
   }, []);
 
-  const handleSelectStore = (store) => {
+  const handleSelectStore = (store: Store) => {
     setCurrentStore(store);
     localStorage.setItem("currentStoreId", store.id);
   };
 
-  const handleScan = async (barcode) => {
+  const handleScan = async (barcode: string) => {
     if (isModalOpen) return; // ignore scans if modal is already open
 
     const product = await db.products.get(barcode);
@@ -68,7 +68,7 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleSaveItem = async (itemData) => {
+  const handleSaveItem = async (itemData: SavedItemData) => {
     const { name, price, quantity, barcode } = itemData;
 
     // 1. Update Global Catalog and Prices if it has a barcode
@@ -98,7 +98,7 @@ export default function App() {
     }
 
     // 2. Add to Cart
-    const cartItem = {
+    const cartItem: CartItem = {
       id: uuidv4(),
       barcode: barcode || null,
       name,
@@ -112,7 +112,7 @@ export default function App() {
     setModalData(null);
   };
 
-  const handleRemoveItem = async (id) => {
+  const handleRemoveItem = async (id: string) => {
     await db.cart.delete(id);
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };

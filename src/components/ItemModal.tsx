@@ -1,6 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 
-export default function ItemModal({ isOpen, initialData, onSave, onCancel }) {
+export interface ItemData {
+  barcode?: string | null;
+  name: string;
+  price: string | number;
+}
+
+export interface SavedItemData {
+  name: string;
+  price: number;
+  quantity: number;
+  barcode: string | null;
+}
+
+interface ItemModalProps {
+  isOpen: boolean;
+  initialData: ItemData | null;
+  onSave: (data: SavedItemData) => void;
+  onCancel: () => void;
+}
+
+export default function ItemModal({ isOpen, initialData, onSave, onCancel }: ItemModalProps) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -8,20 +28,20 @@ export default function ItemModal({ isOpen, initialData, onSave, onCancel }) {
   useEffect(() => {
     if (isOpen) {
       setName(initialData?.name || "");
-      setPrice(initialData?.price || "");
+      setPrice(initialData?.price ? String(initialData.price) : "");
       setQuantity(1);
     }
   }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !price || isNaN(price)) return;
+    if (!name.trim() || !price || isNaN(Number(price))) return;
     onSave({
       name: name.trim(),
       price: parseFloat(price),
-      quantity: parseInt(quantity, 10),
+      quantity: quantity,
       barcode: initialData?.barcode || null,
     });
   };

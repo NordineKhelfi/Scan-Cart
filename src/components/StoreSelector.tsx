@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../db';
+import { useState, useEffect, FormEvent } from 'react';
+import { db, Store } from '../db';
 import { v4 as uuidv4 } from 'uuid';
 
-export default function StoreSelector({ onSelectStore }) {
-  const [stores, setStores] = useState([]);
+interface StoreSelectorProps {
+  onSelectStore: (store: Store) => void;
+}
+
+export default function StoreSelector({ onSelectStore }: StoreSelectorProps) {
+  const [stores, setStores] = useState<Store[]>([]);
   const [newStoreName, setNewStoreName] = useState('');
 
   useEffect(() => {
@@ -14,15 +18,15 @@ export default function StoreSelector({ onSelectStore }) {
     fetchStores();
   }, []);
 
-  const handleSelect = (store) => {
+  const handleSelect = (store: Store) => {
     onSelectStore(store);
   };
 
-  const handleCreate = async (e) => {
+  const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     if (!newStoreName.trim()) return;
     
-    const newStore = {
+    const newStore: Store = {
       id: uuidv4(),
       name: newStoreName.trim()
     };
